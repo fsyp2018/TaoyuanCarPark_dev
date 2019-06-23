@@ -1,19 +1,20 @@
 <template>
   <div>
     <div class="fixed">
-    <p>提供桃園市各停車場目前相關資訊，此資料由桃園市政府開放資料提供</p>
-    <p>最後更新：{{ lastupdate }}</p>
+    <p>提供桃園市各停車場目前相關資訊，此資料由桃園市政府開放資料提供。</p>
+    <p>排序方式為剩餘車位多到少，綠色代表大於50個車位，紅色代表小於10個車位</p>
+    <p style="text-align:right;">最後更新：{{ lastupdate }}</p>
     <!-- 搜尋列 -->
 <select  class="custom-select custom-select-lg mb-3" style="text-align:center" v-model="areaname" @change="changearea">
   <option selected>全部</option>
-  <option  v-for="(item) in filterareaname" :key="item.id" >{{ item}}</option>  
+  <option  v-for="(item) in filterareaname" :key="item.id" >{{ item }}</option>  
 </select>
     </div>
 
 <!-- 列表 -->
 <div class="fixedcontent">
-<div style="display: flex;flex-direction: row;justify-content:center;flex-wrap:wrap;">
-<div class="card border-dark mb-3 mr-3 ml-3" style="width: 40%;" v-for="(item) in filteredcarpark" :key="item.id" :class="{'bg-success':item.surplusSpace >= 50 ,'bg-danger':item.surplusSpace <= 10}">
+<div style="display: flex;flex-direction: row;justify-content:center;flex-wrap:wrap;width:100%;">
+<div class="card border-dark  mr-1 ml-1 mt-5" style="width: 48%;background-color:#FFC107;" v-for="(item) in filteredcarpark" :key="item.id" :class="{'bg-success':item.surplusSpace >= 50 ,'bg-danger':item.surplusSpace <= 10}">
   <div class="card-header bg-transparent border-dark">{{ item.parkName}}</div>
   <div class="card-body text-dark">
     <h5 class="card-title">停車場地址</h5>
@@ -37,8 +38,7 @@ export default {
       filterareaname:{},
       filteredcarpark:[],
       areaname:'全部',
-      lastupdate:'',
-      test:[]
+      lastupdate:''      
     }
   },
   methods:{
@@ -49,8 +49,10 @@ export default {
     this.$http.get(cors+api).then(response => {
       // console.log(response)
       vm.lastupdate = new Date(response.headers.date)      
-      vm.carpark = response.data.result.records
-      vm.filteredcarpark = response.data.result.records
+      vm.carpark = response.data.result.records.sort((a,b) => {
+        return b.surplusSpace - a.surplusSpace
+      })
+      vm.filteredcarpark = vm.carpark
       const area = new Array
       for (let i=0; i <　vm.carpark.length; i++){
         area.push(vm.carpark[i].areaName)
@@ -58,22 +60,21 @@ export default {
       }
         vm.filterareaname = area.filter(function (element, index, arr) {
         return arr.indexOf(element) === index;
-    });
-
-    });
+    })
+    })
     },
     changearea () {
       const vm = this
       if (vm.areaname === '全部') {
       vm.filteredcarpark = Object.assign({}, vm.carpark)
       }else{
-      vm.filteredcarpark =vm.carpark.filter(function(item){
+      vm.filteredcarpark = vm.carpark.filter(function(item){
       if (item.areaName === vm.areaname){        
           return true
         }
       })
     }
-    }
+    },
   },
   created () {
     const vm =this
@@ -84,15 +85,15 @@ export default {
 
 <style scoped lang="scss">
 .fixed {
-  position: fixed;
-  top: 200;
+  position: fixed;  
   width: 100%;  
-  background-color: white;
+  background-color: white;    
   z-index:10;
+  text-align: center;
 }
-.fixedcontent {
+.fixedcontent {  
   position: relative;
-  top: 170px;
+  top: 190px;
   width: 100%;  
 }
 </style>
