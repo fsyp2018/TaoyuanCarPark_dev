@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <HelloWorld />
+    <HelloWorld  />
   </div>
 </template>
 
@@ -16,5 +16,5 @@ export default {
 </script>
 
 <style lang="scss">
-@import "./assets/all.scss";
+@import "./assets/js/all.scss";
 </style>
